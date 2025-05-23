@@ -32,6 +32,13 @@ class Player:
             self.y -= PLAYER_VITESSE
         if (pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.KEY_S)) and self.y + 16 < 256:
             self.y += PLAYER_VITESSE + 0.5
+    
+    def soin(self):
+        global tir_attente2
+        if self.lifes != 5 and self.lifes > 0:
+            if pyxel.frame_count - tir_attente2 >= -1:
+                self.lifes += 1
+                tir_attente2 = pyxel.frame_count + 600
 
     def tir(self):
         global tir_attente3
@@ -61,6 +68,7 @@ class Player:
         self.deplacement()
         self.tir()
         self.tirGestion()
+        self.soin()
 
     def draw(self):
         if self.boost:
@@ -305,17 +313,9 @@ class Game:
         self.collisionEnnemy7Vaisseau()
         self.powerUps.update()
         self.receiveBonus()
-        self.soin()
         self.levelUp(0)
         self.speedUp(0)
         self.commande()
-
-    def soin(self):
-        global tir_attente2
-        if self.player.lifes != 5 and self.player.lifes <= 0:
-            if pyxel.frame_count - tir_attente2 >= -1:
-                self.player.lifes += 1
-                tir_attente2 = pyxel.frame_count + 600
 
     def draw(self):
         global score, mort
