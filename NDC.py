@@ -337,9 +337,9 @@ class Game:
             if self.scoreEnd == 0:
                 self.scoreEnd = self.score
             pyxel.stop()
-            pyxel.text(100, 120, "Vous avez echouer", 7)
+            pyxel.text(100, 120, "Vous avez echoué", 7)
             pyxel.text(110, 140, "Score: " + str(self.scoreEnd), 7)
-            pyxel.text(10, 10, "Vou pouvez relancer le jeu, l'humanite a peri...", 10)
+            pyxel.text(10, 10, "Vous pouvez relancer le jeu, l'humanite a peri...", 10)
 
 class App:
     def __init__(self):
