@@ -203,15 +203,15 @@ class PowerUps:
 
 class Game:
     def __init__(self):
-        pyxel.init(256, 256, title="Nuit du Code")
         self.player = Player()
         self.ennemies = Ennemies()
         self.vaisseau = Vaisseau()
         self.powerUps = PowerUps()
-        pyxel.load("3.pyxres")
+        self.score = 0
+        self.scoreEnd = 0
+        self.clock = pyxel.frame_count
         pyxel.play(0, 4, 31, True)
         pyxel.play(0, 6, 32, True)
-        pyxel.run(self.update, self.draw)
 
     def commande(self):
         global WALLPAPER
@@ -316,9 +316,10 @@ class Game:
         self.levelUp(0)
         self.speedUp(0)
         self.commande()
+        self.score = (pyxel.frame_count - self.clock) * 3 * (self.player.lifes+1) + self.vaisseau.life - 1000
 
     def draw(self):
-        global score, mort
+        global score
         if self.player.lifes > 0 and self.vaisseau.life > 0:
             pyxel.cls(0)
             if WALLPAPER:
@@ -329,18 +330,27 @@ class Game:
             self.powerUps.draw()
             pyxel.text(5, 5, "Player's Life:" + str(self.player.lifes), 7)
             pyxel.text(5, 15, "Ship's Life:" + str(self.vaisseau.life), 7)
-            pyxel.text(5, 25 , "Score:" + str(pyxel.frame_count * 3 * self.player.lifes + self.vaisseau.life - 1000), 7)
+            pyxel.text(5, 25 , "Score:" + str(self.score), 7)
             self.player.draw()
         else:
             pyxel.cls(0)
-            mort = True
-
-            if score == 0:
-                score = pyxel.frame_count * 3 * (self.player.lifes+1 if self.player.lifes == 0 else self.player.lifes) + self.vaisseau.life - 1000
+            if self.scoreEnd == 0:
+                self.scoreEnd = self.score
             pyxel.stop()
-
             pyxel.text(100, 120, "Vous avez echouer", 7)
-            pyxel.text(110, 140, "Score: " + str(score), 7)
+            pyxel.text(110, 140, "Score: " + str(self.scoreEnd), 7)
             pyxel.text(10, 10, "Vou pouvez relancer le jeu, l'humanite a peri...", 10)
 
-Game()
+class App:
+    def __init__(self):
+        pyxel.init(256, 256, title="Nuit du Code")
+        pyxel.load("3.pyxres")
+        self.game = Game()
+        pyxel.run(self.update, self.draw)
+    def update(self):
+        self.game.update()
+        if pyxel.btnp(pyxel.KEY_R):
+            self.game = Game()
+    def draw(self):
+        self.game.draw()
+App()
