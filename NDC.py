@@ -2,11 +2,11 @@
 import pyxel
 from random import *
 
-tir_attente4 = 0
-tir_attente5 = 0
-tir_attente3 = 0
-tir_attente2 = 0
-tir_attente = 0
+wait4 = 0
+wait5 = 0
+wait3 = 0
+wait2 = 0
+wait1 = 0
 PLAYER_VITESSE = 2
 score = 0
 mort = False
@@ -34,35 +34,33 @@ class Player:
             self.y += PLAYER_VITESSE + 0.5
     
     def soin(self):
-        global tir_attente2
-        if self.lifes != 5 and self.lifes > 0:
-            if pyxel.frame_count - tir_attente2 >= -1:
+        global wait2
+        if 0 < self.lifes < 5:
+            if pyxel.frame_count - wait2 > 0:
                 self.lifes += 1
-                tir_attente2 = pyxel.frame_count + 600
+                wait2 = pyxel.frame_count + 600
 
     def tir(self):
-        global tir_attente3
+        global wait3
         if self.lifes > 0:
-            if pyxel.frame_count - tir_attente3 >= -1:
+            if pyxel.frame_count - wait3 >= -1:
                 if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
                     pyxel.play(2, 1, 3)
                     if self.level == 2:
                         self.all_tir.append([self.x + 6, self.y])
                         self.all_tir.append([self.x - 6, self.y])
-                        tir_attente3 = pyxel.frame_count + 10
+                        wait3 = pyxel.frame_count + 10
                     elif self.boost:
                         self.all_tir.append([self.x, self.y])
-                        tir_attente3 = pyxel.frame_count + 5
+                        wait3 = pyxel.frame_count + 5
                     else:
                         self.all_tir.append([self.x, self.y])
-                        tir_attente3 = pyxel.frame_count + 10
+                        wait3 = pyxel.frame_count + 10
 
     def tirGestion(self):
+        self.all_tir = [tir for tir in self.all_tir if tir[1] + 16 >= 0]
         for tir in self.all_tir:
-            if tir[1] + 16 < 0:
-                self.all_tir.remove(tir)
-            else:
-                tir[1] -= 2 * PLAYER_VITESSE
+            tir[1] -= 2 * PLAYER_VITESSE
 
     def update(self):
         self.deplacement()
@@ -135,11 +133,9 @@ class Ennemies:
             return 4
 
     def ennemiesTirGestion(self):
+        self.all_ennemies_tir = [tir for tir in self.all_ennemies_tir if tir[1] <= 256]
         for tir in self.all_ennemies_tir:
-            if tir[1] > 256:
-                self.all_ennemies_tir.remove(tir)
-            else:
-                tir[1] += 2 * PLAYER_VITESSE
+            tir[1] += 2 * PLAYER_VITESSE
 
     def update(self):
         self.spawn()
@@ -234,24 +230,24 @@ class Game:
                     self.speedUp(pyxel.frame_count + 300)
 
     def levelUp(self, time):
-        global tir_attente4
+        global wait4
         if time != 0:
             self.player.level = 2
-        if pyxel.frame_count - tir_attente4 >= -1:
+        if pyxel.frame_count - wait4 >= -1:
             self.player.level = 1
-            tir_attente4 = 0
-            tir_attente4 = pyxel.frame_count + 300
+            wait4 = 0
+            wait4 = pyxel.frame_count + 300
 
     def speedUp(self, time):
-        global tir_attente5, PLAYER_VITESSE
+        global wait5, PLAYER_VITESSE
         if time != 0:
             PLAYER_VITESSE = 4
             self.player.boost = True
-        if pyxel.frame_count - tir_attente5 >= -1:
+        if pyxel.frame_count - wait5 >= -1:
             PLAYER_VITESSE = 2
             self.player.boost = False
-            tir_attente5 = 0
-            tir_attente5 = pyxel.frame_count + 300
+            wait5 = 0
+            wait5 = pyxel.frame_count + 300
 
     def collisionTir(self):
         if self.player.lifes > 0:
@@ -282,12 +278,12 @@ class Game:
                     self.player.lifes = 0
 
     def collisionPlayerTir(self):
-        global tir_attente
+        global wait1
         for tir in self.ennemies.all_ennemies_tir:
             if self.player.x < tir[0] + 16 and self.player.x + 16 > tir[0] and self.player.y < tir[1] + 16 and self.player.y + 16 > tir[1]:
                 self.ennemies.all_ennemies_tir.remove(tir)
-                if pyxel.frame_count - tir_attente >= -1:
-                    tir_attente = pyxel.frame_count + 10
+                if pyxel.frame_count - wait1 >= -1:
+                    wait1 = pyxel.frame_count + 10
                     self.player.lifes -= 1
 
     def collisionTirVaisseau(self):
@@ -339,7 +335,7 @@ class Game:
             pyxel.stop()
             pyxel.text(100, 120, "Vous avez echoué", 7)
             pyxel.text(110, 140, "Score: " + str(self.scoreEnd), 7)
-            pyxel.text(10, 10, "Vous pouvez relancer le jeu, l'humanite a peri...", 10)
+            pyxel.text(10, 10, "Vous pouvez relancer le jeu, l'humanité a peri...", 10)
 
 class App:
     def __init__(self):
