@@ -2,16 +2,9 @@
 import pyxel
 from random import *
 
-wait4 = 0
-wait5 = 0
-wait3 = 0
-wait2 = 0
-wait1 = 0
 PLAYER_VITESSE = 2
 score = 0
-mort = False
 WALLPAPER = True
-
 
 class Player:
     def __init__(self):
@@ -22,6 +15,8 @@ class Player:
         self.score = 0
         self.all_tir = []
         self.boost = False
+        self.wait = 0
+        self.wait2 = 0
 
     def deplacement(self):
         if (pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_Q)) and self.x > 0:
@@ -34,28 +29,26 @@ class Player:
             self.y += PLAYER_VITESSE + 0.5
     
     def soin(self):
-        global wait2
         if 0 < self.lifes < 5:
-            if pyxel.frame_count - wait2 > 0:
+            if pyxel.frame_count - self.wait > 0:
                 self.lifes += 1
-                wait2 = pyxel.frame_count + 600
+                self.wait = pyxel.frame_count + 600
 
     def tir(self):
-        global wait3
         if self.lifes > 0:
-            if pyxel.frame_count - wait3 >= -1:
+            if pyxel.frame_count - self.wait2 >= -1:
                 if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
                     pyxel.play(2, 1, 3)
                     if self.level == 2:
                         self.all_tir.append([self.x + 6, self.y])
                         self.all_tir.append([self.x - 6, self.y])
-                        wait3 = pyxel.frame_count + 10
+                        self.wait = pyxel.frame_count + 10
                     elif self.boost:
                         self.all_tir.append([self.x, self.y])
-                        wait3 = pyxel.frame_count + 5
+                        self.wait2 = pyxel.frame_count + 5
                     else:
                         self.all_tir.append([self.x, self.y])
-                        wait3 = pyxel.frame_count + 10
+                        self.wait = pyxel.frame_count + 10
 
     def tirGestion(self):
         self.all_tir = [tir for tir in self.all_tir if tir[1] + 16 >= 0]
@@ -170,7 +163,6 @@ class Vaisseau:
     def __init__(self):
         self.life = 1000
 
-
 class PowerUps:
     def __init__(self):
         self.type = ""
@@ -206,6 +198,9 @@ class Game:
         self.score = 0
         self.scoreEnd = 0
         self.clock = pyxel.frame_count
+        self.wait3 = 0
+        self.wait2 = 0
+        self.wait1 = 0
         pyxel.play(0, 4, 31, True)
         pyxel.play(0, 6, 32, True)
 
@@ -230,24 +225,23 @@ class Game:
                     self.speedUp(pyxel.frame_count + 300)
 
     def levelUp(self, time):
-        global wait4
         if time != 0:
             self.player.level = 2
-        if pyxel.frame_count - wait4 >= -1:
+        if (pyxel.frame_count - self.wait1 >= -1):
             self.player.level = 1
-            wait4 = 0
-            wait4 = pyxel.frame_count + 300
+            self.wait1 = 0
+            self.wait1 = pyxel.frame_count + 300
 
     def speedUp(self, time):
-        global wait5, PLAYER_VITESSE
+        global PLAYER_VITESSE
         if time != 0:
             PLAYER_VITESSE = 4
             self.player.boost = True
-        if pyxel.frame_count - wait5 >= -1:
+        if pyxel.frame_count - self.wait2 >= -1:
             PLAYER_VITESSE = 2
             self.player.boost = False
-            wait5 = 0
-            wait5 = pyxel.frame_count + 300
+            self.wait2 = 0
+            self.wait2 = pyxel.frame_count + 300
 
     def collisionTir(self):
         if self.player.lifes > 0:
@@ -278,12 +272,11 @@ class Game:
                     self.player.lifes = 0
 
     def collisionPlayerTir(self):
-        global wait1
         for tir in self.ennemies.all_ennemies_tir:
             if self.player.x < tir[0] + 16 and self.player.x + 16 > tir[0] and self.player.y < tir[1] + 16 and self.player.y + 16 > tir[1]:
                 self.ennemies.all_ennemies_tir.remove(tir)
-                if pyxel.frame_count - wait1 >= -1:
-                    wait1 = pyxel.frame_count + 10
+                if pyxel.frame_count - self.wait3 >= -1:
+                    self.wait3 = pyxel.frame_count + 10
                     self.player.lifes -= 1
 
     def collisionTirVaisseau(self):
@@ -333,7 +326,7 @@ class Game:
             if self.scoreEnd == 0:
                 self.scoreEnd = self.score
             pyxel.stop()
-            pyxel.text(100, 120, "Vous avez echoué", 7)
+            pyxel.text(100, 120, "Vous avez echoue", 7)
             pyxel.text(110, 140, "Score: " + str(self.scoreEnd), 7)
             pyxel.text(10, 10, "Vous pouvez relancer le jeu, l'humanité a peri...", 10)
 
