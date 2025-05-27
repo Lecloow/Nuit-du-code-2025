@@ -1,8 +1,10 @@
 # Pyxel Studio
 import pyxel
 from random import *
+from enum import Enum
 
 PLAYER_VITESSE = 2
+PLAYER_SIZE = 16
 score = 0
 WALLPAPER = True
 
@@ -51,7 +53,7 @@ class Player:
                         self.wait = pyxel.frame_count + 10
 
     def tirGestion(self):
-        self.all_tir = [tir for tir in self.all_tir if tir[1] + 16 >= 0]
+        self.all_tir = [tir for tir in self.all_tir if tir[1] + PLAYER_SIZE >= 0]
         for tir in self.all_tir:
             tir[1] -= 2 * PLAYER_VITESSE
 
@@ -75,6 +77,14 @@ class Player:
         for tir in self.all_tir:
             pyxel.blt(tir[0], tir[1], 0, 0, 32, 16, 16, 1)
 
+class EnemyType(Enum):
+    TYPE1 = 1
+    TYPE2 = 2
+    TYPE3 = 3
+    TYPE4 = 4
+    TYPE5 = 5
+    TYPE6 = 6
+    TYPE7 = 7
 
 class Ennemies:
     def __init__(self):
@@ -109,21 +119,16 @@ class Ennemies:
             elif ennemy[1] < 256 and pyxel.frame_count % 120 == ennemy[2]:
                 self.all_ennemies_tir.append([ennemy[0], ennemy[1]])
 
-    def tirDamage(self, ennemy):
-        if ennemy == 1:
-            return 1
-        elif ennemy == 2:
-            return 2
-        elif ennemy == 3:
-            return 1
-        elif ennemy == 4:
-            return 2
-        elif ennemy == 5:
-            return 2
-        elif ennemy == 7:
-            return 4
-        elif ennemy == 6:
-            return 4
+    def tirDamage(self, enemy_type):
+        return {
+            EnemyType.TYPE1: 1,
+            EnemyType.TYPE2: 2,
+            EnemyType.TYPE3: 1,
+            EnemyType.TYPE4: 2,
+            EnemyType.TYPE5: 2,
+            EnemyType.TYPE6: 4,
+            EnemyType.TYPE7: 4,
+        }.get(enemy_type, 1)
 
     def ennemiesTirGestion(self):
         self.all_ennemies_tir = [tir for tir in self.all_ennemies_tir if tir[1] <= 256]
@@ -201,8 +206,8 @@ class Game:
         self.wait3 = 0
         self.wait2 = 0
         self.wait1 = 0
-        pyxel.play(0, 4, 31, True)
-        pyxel.play(0, 6, 32, True)
+        #pyxel.play(0, 4, 31, True)
+        #pyxel.play(0, 6, 32, True)
 
     def commande(self):
         global WALLPAPER
