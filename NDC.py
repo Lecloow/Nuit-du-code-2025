@@ -1,4 +1,4 @@
-# Pyxel Studio
+  # Pyxel Studio
 import pyxel
 from random import *
 from enum import Enum
@@ -94,7 +94,7 @@ class Ennemies:
 
     def spawn(self):
         if pyxel.frame_count % 30 == 1:
-            self.all_ennemies.append([randint(0, 240), 0, randint(0, 59), randint(1, 7), randint(100, 168)])
+            self.all_ennemies.append([randint(0, 240), -16, randint(0, 59), randint(1, 7), randint(100, 168)])
 
     def gestion(self):
         for ennemy in self.all_ennemies:
@@ -335,16 +335,37 @@ class Game:
             pyxel.text(110, 140, "Score: " + str(self.scoreEnd), 7)
             pyxel.text(10, 10, "Vous pouvez relancer le jeu, l'humanité a peri...", 10)
 
+class Menu: #Launch Menu
+    def __init__(self):
+        self.showMenu = True
+        self.language = "french"
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_O):
+            self.showMenu = False
+    def draw(self):
+        pyxel.cls(0)
+        pyxel.text(10, 10, "Menu, press O", 7)
+
 class App:
     def __init__(self):
         pyxel.init(256, 256, title="Nuit du Code")
         pyxel.load("3.pyxres")
         self.game = Game()
+        self.menu = Menu()
+        #self.showMenu = True
         pyxel.run(self.update, self.draw)
     def update(self):
-        self.game.update()
-        if pyxel.btnp(pyxel.KEY_R):
+        if self.menu.showMenu:
+            self.menu.update()
+        else:
+            self.game.update()
+            if pyxel.btnp(pyxel.KEY_O):
+                self.menu.showMenu = not self.menu.showMenu # Goal replace by pause Menu
+        if pyxel.btnp(pyxel.KEY_R) and self.game.player.lifes == 0:
             self.game = Game()
     def draw(self):
-        self.game.draw()
+        if self.menu.showMenu:
+            self.menu.draw()
+        else:
+            self.game.draw()
 App()
